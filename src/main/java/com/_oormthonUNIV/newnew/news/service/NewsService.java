@@ -6,7 +6,7 @@ import com._oormthonUNIV.newnew.user.entity.Users;
 import java.util.List;
 
 public interface NewsService {
-    News getById(Long newsId);
+    News getById(String newsId);
 
     List<News> getUserSurveiedNews(Users user);
 }

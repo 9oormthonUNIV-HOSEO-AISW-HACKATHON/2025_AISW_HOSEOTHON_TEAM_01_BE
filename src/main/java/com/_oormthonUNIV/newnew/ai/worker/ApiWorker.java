@@ -88,7 +88,7 @@ public class ApiWorker {
                 task = queue.take();
                 News news = newsService.getById(task.getNewsId());
                 AiNewsReport newsReport =
-                        aiNewsReportService.findByNewsId(news.getId())
+                        aiNewsReportService.findByNewsId(news.getTitle())
                                 .orElse(
                                         aiNewsReportService.save(AiNewsReport.builder()
                                                 .news(news)
@@ -98,10 +98,10 @@ public class ApiWorker {
                                 );
 
                 List<AiGenerationSurveyStatistics> statisticsList =
-                        aiGenerationSurveyStatisticsService.getByAiNewsReportId(news.getId());
+                        aiGenerationSurveyStatisticsService.getByAiNewsReportId(newsReport.getId());
 
                 List<SurveyAnswer> newsGenerationSurveyList =
-                        surveyService.getByNewsIdAndGeneration(news.getId(), task.getGeneration());
+                        surveyService.getByNewsIdAndGeneration(news.getTitle(), task.getGeneration());
 
 
                 // gpt응답 내역 처리 로직

@@ -15,8 +15,8 @@ public class AiNewsReportServiceImpl implements AiNewsReportService {
     private final AiNewsReportRepository repository;
 
     @Override
-    public Optional<AiNewsReport> findByNewsId(Long newsId) {
-        return repository.findById(newsId);
+    public Optional<AiNewsReport> findByNewsId(String newsId) {
+        return repository.findByNews_Title(newsId);
     }
 
     @Override

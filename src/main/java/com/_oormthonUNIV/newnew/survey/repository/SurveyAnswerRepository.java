@@ -8,6 +8,6 @@ import java.util.List;
 
 public interface SurveyAnswerRepository extends JpaRepository<SurveyAnswer, Long> {
 
-    List<SurveyAnswer> findByNewsIdAndGeneration(Long newsId, UserGeneration generation);
+    List<SurveyAnswer> findByNews_TitleAndGeneration(String newsId, UserGeneration generation);
 
 }

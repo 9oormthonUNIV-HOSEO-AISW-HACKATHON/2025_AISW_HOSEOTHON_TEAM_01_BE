@@ -46,7 +46,7 @@ public class SurveyFactory {
 
     public static SurveyStatisticsTask toSurveyStatisticsTask(News news, Users user) {
         return SurveyStatisticsTask.builder()
-                .newsId(news.getId())
+                .newsId(news.getTitle())
                 .generation(user.getGeneration())
                 .reTryCount((short) 0)
                 .build();
