@@ -74,4 +74,15 @@ public class SurveyServiceImpl implements SurveyService {
         return SurveyFactory.toNewsReportResponse(newsId, report, statisticsList);
     }
 
+    @Override
+    public boolean isExistSurvey(Long newsId, Users user) {
+        List<SurveyAnswer> answerList =
+                surveyAnswerRepository.findByNewsIdAndUserId(newsId, user.getId());
+        if(answerList.isEmpty()){
+            return true;
+        }else {
+            return false;
+        }
+    }
+
 }

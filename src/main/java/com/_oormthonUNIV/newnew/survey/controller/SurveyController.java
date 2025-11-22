@@ -48,4 +48,11 @@ public class SurveyController {
         return surveyService.getNewsReport(newsId, userDetails.getUser());
     }
 
+    @GetMapping("/survey/check/{newsId}")
+    public Boolean isExist(
+            @PathVariable Long newsId,
+            @AuthenticationPrincipal UserDetailImpl userDetails) {
+        return surveyService.isExistSurvey(newsId, userDetails.getUser());
+    }
+
 }

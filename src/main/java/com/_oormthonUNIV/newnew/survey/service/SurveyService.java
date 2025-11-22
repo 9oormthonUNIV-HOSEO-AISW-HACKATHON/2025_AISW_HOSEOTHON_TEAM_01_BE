@@ -18,4 +18,6 @@ public interface SurveyService {
     List<SurveyAnswer> getByNewsIdAndGeneration(Long newsId, UserGeneration generation);
 
     NewsReportResponse getNewsReport(Long newsId, Users user);
+
+    boolean isExistSurvey(Long newsId, Users user);
 }
