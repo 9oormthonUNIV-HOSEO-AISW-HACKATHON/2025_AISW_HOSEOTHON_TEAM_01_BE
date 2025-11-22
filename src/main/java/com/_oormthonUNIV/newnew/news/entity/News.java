@@ -1,8 +1,7 @@
 package com._oormthonUNIV.newnew.news.entity;
 
 import com._oormthonUNIV.newnew.global.util.LongIdEntity;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
@@ -12,15 +11,19 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-public class News extends LongIdEntity {
+public class News {
 
+    @Id
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    @Column(columnDefinition = "TEXT")
     private String content;
 
     private String author;
+
+    @Enumerated(EnumType.STRING)
+    private NewsCategory category;
 
     @Column(nullable = false)
     private LocalDateTime news_created_at;
