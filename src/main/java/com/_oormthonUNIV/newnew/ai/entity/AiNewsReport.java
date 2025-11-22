@@ -1,5 +1,6 @@
 package com._oormthonUNIV.newnew.ai.entity;
 
+import com._oormthonUNIV.newnew.ai.dto.ai.AllGenerationAspectDTO;
 import com._oormthonUNIV.newnew.global.util.LongIdEntity;
 import com._oormthonUNIV.newnew.news.entity.News;
 import jakarta.persistence.Entity;
@@ -23,4 +24,8 @@ public class AiNewsReport extends LongIdEntity {
 
     private String aspectReason;
 
+    public void update(AllGenerationAspectDTO dto){
+        this.commonAspect = dto.getCommonAspect();
+        this.aspectReason = dto.getAspectReason();
+    }
 }

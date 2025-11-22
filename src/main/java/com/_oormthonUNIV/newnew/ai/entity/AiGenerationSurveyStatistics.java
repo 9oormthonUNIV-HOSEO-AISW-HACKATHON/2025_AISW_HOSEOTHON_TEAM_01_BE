@@ -13,7 +13,7 @@ import lombok.*;
 public class AiGenerationSurveyStatistics extends LongIdEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "ai_news_report", nullable = false)
+    @JoinColumn(name = "ai_news_report_id", nullable = false)
     private AiNewsReport report;
 
     @Column(nullable = false)

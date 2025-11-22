@@ -14,3 +14,16 @@ spring:
         format_sql: true
         generate_statistics: true
     show-sql: true
+
+jwt:
+  issuer: "newnew"
+  key:
+    access-key: "GxNfK0XvN7pM3jB2YqRtZl4s8dF1vC9qTzE5aWm2sUuLxOeH"
+    refresh-key: "JrW4pD7aZsQ8xR1mTgB2yV5fNnL9kC3vEoH6qUuP0wYtSxMz"
+  ttl:
+    access: 3 #min
+    refresh: 7 # days
+
+openai:
+  api:
+    key: ${OPENAI-API-KEY:}

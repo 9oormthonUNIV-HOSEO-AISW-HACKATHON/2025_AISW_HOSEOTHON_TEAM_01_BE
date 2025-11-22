@@ -37,6 +37,9 @@ public class Users extends LongIdEntity {
     @Enumerated(EnumType.STRING)
     private UserGeneration generation;
 
+    @Column(nullable = false)
+    private LocalDateTime birth;
+
     private LocalDateTime updatedAt;
 
     private LocalDateTime deletedAt;
