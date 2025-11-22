@@ -36,6 +36,7 @@ public class SurveyFactory {
                     .news(news)
                     .question_id((long) (i + 1))
                     .answer(answers.get(i))
+                    .generation(user.getGeneration())
                     .user(user)
                     .build()
             );

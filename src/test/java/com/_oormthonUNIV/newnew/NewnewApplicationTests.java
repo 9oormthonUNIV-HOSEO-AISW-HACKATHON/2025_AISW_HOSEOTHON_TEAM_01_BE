@@ -11,9 +11,10 @@ class NewnewApplicationTests {
     @Autowired
     private ApiWorker apiWorker;
 
+
 	@Test
 	void contextLoads() {
-        apiWorker.chatOnce("connect test, Say yes");
+        apiWorker.chat("connect test, Say yes");
 	}
 
 }

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 public class UserSurveySaveRequest {
 
     @NotBlank(message = "뉴스id는 비어있을 수 없습니다.")
-    private String newsId;
+    private Long newsId;
 
     @NotBlank(message = "질문1 답변은 비어있을 수 없습니다.")
     @Max(value = 200, message = "최대 답변 글자 수는 200자 입니다.")

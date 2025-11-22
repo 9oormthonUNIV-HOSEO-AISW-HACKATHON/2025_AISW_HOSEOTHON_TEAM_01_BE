@@ -13,7 +13,7 @@ import java.util.List;
 public class NewsServiceImpl implements NewsService {
 
     @Override
-    public News getById(String newsId) {
+    public News getById(Long newsId) {
         return null;
     }
 

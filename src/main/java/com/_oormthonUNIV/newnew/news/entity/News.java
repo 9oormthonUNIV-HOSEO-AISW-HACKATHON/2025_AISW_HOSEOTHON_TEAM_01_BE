@@ -19,6 +19,9 @@ public class News extends LongIdEntity {
 
     private String author;
 
+    @Column(columnDefinition = "TEXT")
+    private String content;
+
     @Column(nullable = false)
     private LocalDateTime news_created_at;
 
