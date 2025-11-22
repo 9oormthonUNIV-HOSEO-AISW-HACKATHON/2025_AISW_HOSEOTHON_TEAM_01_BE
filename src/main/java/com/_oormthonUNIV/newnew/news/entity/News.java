@@ -27,4 +27,9 @@ public class News extends LongIdEntity {
     @Column(nullable = false)
     private LocalDateTime news_created_at;
 
+    @Builder.Default
+    @Column(nullable = false)
+    private long viewCount = 0L;   // 조회수
+
+    private String thumbnailUrl;
 }
