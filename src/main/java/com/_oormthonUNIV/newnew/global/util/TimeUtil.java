@@ -26,6 +26,13 @@ public class TimeUtil {
     public static LocalDateTime toLocalDateTime(Date date) {
         if (date == null) return null;
         Instant instant = date.toInstant();
-        return LocalDateTime.ofInstant(instant,  ZoneId.of("Asia/Seoul"));
+        return LocalDateTime.ofInstant(instant, ZoneId.of("Asia/Seoul") );
     }
+
+    public static long toEpochMilli(LocalDateTime ldt) {
+        ZoneId zone = ZoneId.of("Asia/Seoul");
+        if (ldt == null) throw new IllegalArgumentException("ldt and zone must not be null");
+        return ldt.atZone(zone).toInstant().toEpochMilli();
+    }
+
 }

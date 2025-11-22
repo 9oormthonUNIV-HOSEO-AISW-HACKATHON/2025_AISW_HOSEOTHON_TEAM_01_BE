@@ -17,7 +17,6 @@ import java.util.Arrays;
 @Slf4j
 @Aspect
 @Component
-@Profile("dev")
 public class DevMainLoggingAspect {
 
     private final ObjectMapper objectMapper = new ObjectMapper();
