@@ -1,9 +1,14 @@
 package com._oormthonUNIV.newnew.survey.service.impl;
 
+import com._oormthonUNIV.newnew.ai.entity.AiGenerationSurveyStatistics;
+import com._oormthonUNIV.newnew.ai.entity.AiNewsReport;
+import com._oormthonUNIV.newnew.ai.service.AiGenerationSurveyStatisticsService;
+import com._oormthonUNIV.newnew.ai.service.AiNewsReportService;
 import com._oormthonUNIV.newnew.global.messageQueue.task.SurveyStatisticsTask;
 import com._oormthonUNIV.newnew.news.entity.News;
 import com._oormthonUNIV.newnew.news.service.NewsService;
 import com._oormthonUNIV.newnew.survey.dto.request.UserSurveySaveRequest;
+import com._oormthonUNIV.newnew.survey.dto.response.NewsReportResponse;
 import com._oormthonUNIV.newnew.survey.dto.response.NewsSurveyResponse;
 import com._oormthonUNIV.newnew.survey.entity.SurveyAnswer;
 import com._oormthonUNIV.newnew.survey.exception.SurveyAnswerErrorCode;
@@ -26,6 +31,8 @@ public class SurveyServiceImpl implements SurveyService {
     private final BlockingQueue<SurveyStatisticsTask> queue;
     private final SurveyAnswerRepository surveyAnswerRepository;
     private final NewsService newsService;
+    private final AiNewsReportService reportService;
+    private final AiGenerationSurveyStatisticsService surveyStatisticsService;
 
     @Override
     public List<NewsSurveyResponse> getSurveys() {
@@ -50,4 +57,21 @@ public class SurveyServiceImpl implements SurveyService {
     public List<SurveyAnswer> getByNewsIdAndGeneration(Long newsId, UserGeneration generation) {
         return surveyAnswerRepository.findByNewsIdAndGeneration(newsId, generation);
     }
+
+    @Override
+    public NewsReportResponse getNewsReport(Long newsId, Users user) {
+        List<SurveyAnswer> answerList =
+                surveyAnswerRepository.findByNewsIdAndUserId(newsId, user.getId());
+        if(answerList.isEmpty()){
+            throw new SurveyAnswerException(SurveyAnswerErrorCode.SURVEY_BAD_ACCESS);
+        }
+
+        AiNewsReport report = reportService.findByNewsId(newsId)
+                .orElseThrow( () -> new SurveyAnswerException(SurveyAnswerErrorCode.AI_REPORT_NOT_FOUND) );
+        List<AiGenerationSurveyStatistics> statisticsList =
+                surveyStatisticsService.getByAiNewsReportId(report.getId());
+
+        return SurveyFactory.toNewsReportResponse(newsId, report, statisticsList);
+    }
+
 }

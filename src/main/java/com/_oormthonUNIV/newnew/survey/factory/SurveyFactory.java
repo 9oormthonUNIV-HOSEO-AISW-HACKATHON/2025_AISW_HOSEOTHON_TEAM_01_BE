@@ -1,8 +1,12 @@
 package com._oormthonUNIV.newnew.survey.factory;
 
+import com._oormthonUNIV.newnew.ai.dto.ai.GenerationAspectDTO;
+import com._oormthonUNIV.newnew.ai.entity.AiGenerationSurveyStatistics;
+import com._oormthonUNIV.newnew.ai.entity.AiNewsReport;
 import com._oormthonUNIV.newnew.global.messageQueue.task.SurveyStatisticsTask;
 import com._oormthonUNIV.newnew.news.entity.News;
 import com._oormthonUNIV.newnew.survey.dto.request.UserSurveySaveRequest;
+import com._oormthonUNIV.newnew.survey.dto.response.NewsReportResponse;
 import com._oormthonUNIV.newnew.survey.dto.response.NewsSurveyResponse;
 import com._oormthonUNIV.newnew.survey.entity.SurveyAnswer;
 import com._oormthonUNIV.newnew.user.entity.Users;
@@ -52,5 +56,27 @@ public class SurveyFactory {
                 .build();
     }
 
+    public static NewsReportResponse toNewsReportResponse(Long newsId, AiNewsReport report, List<AiGenerationSurveyStatistics> surveyStatistics) {
+        return NewsReportResponse.builder()
+                .newsId(newsId)
+                .commonAspect(report.getCommonAspect())
+                .aspectReason(report.getAspectReason())
+                .generationAspectList(surveyStatistics.stream().map( SurveyFactory::toGenerationAspectDTO).toList())
+                .build();
+
+
+    }
+
+    public static GenerationAspectDTO toGenerationAspectDTO(AiGenerationSurveyStatistics surveyStatistics) {
+        return GenerationAspectDTO.builder()
+                .generation(surveyStatistics.getGeneration().toString())
+                .firstAspect(surveyStatistics.getFirstAspect())
+                .firstAspectReason(surveyStatistics.getFirstAspectReason())
+                .secondAspect(surveyStatistics.getSecondAspect())
+                .secondAspectReason(surveyStatistics.getSecondAspectReason())
+                .thirdAspect(surveyStatistics.getThirdAspect())
+                .thirdAspectReason(surveyStatistics.getThirdAspectReason())
+                .build();
+    }
 
 }
