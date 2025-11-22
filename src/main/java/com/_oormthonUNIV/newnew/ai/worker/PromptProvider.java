@@ -1,5 +1,6 @@
 package com._oormthonUNIV.newnew.ai.worker;
 
+import com._oormthonUNIV.newnew.ai.entity.AiGenerationSurveyStatistics;
 import com._oormthonUNIV.newnew.news.entity.News;
 import com._oormthonUNIV.newnew.survey.entity.SurveyAnswer;
 import com._oormthonUNIV.newnew.user.entity.enums.UserGeneration;
@@ -89,8 +90,24 @@ public class PromptProvider {
             
             """;
 
+    public String statisticAllGenerationAddData(
+        News news,List<AiGenerationSurveyStatistics> aiGenerationSurveyStatisticList
+    ){
+        StringBuilder common = new StringBuilder();
+        common.append("news : ").append(news.getContent()).append("\n");
+        for (AiGenerationSurveyStatistics ai : aiGenerationSurveyStatisticList) {
+            common.append("- generation : ").append(ai.getGeneration()).append("\n");
+            common.append("\t").append("- aspect1 : ").append(ai.getFirstAspect()).append("\n");
+            common.append("\t").append("- aspect1Reason : ").append(ai.getFirstAspectReason()).append("\n");
+            common.append("\t").append("- aspect2 : ").append(ai.getSecondAspect()).append("\n");
+            common.append("\t").append("- aspect2Reason : ").append(ai.getSecondAspectReason()).append("\n");
+            common.append("\t").append("- aspect3 : ").append(ai.getThirdAspect()).append("\n");
+            common.append("\t").append("- aspect3Reason : ").append(ai.getThirdAspectReason()).append("\n");
+        }
+        return statisticAllGenerations + common.toString();
+    }
 
-    public String staticGenerationAddData(
+    public String statisticGenerationAddData(
             List<SurveyAnswer> answerList,
             UserGeneration generation,
             News news

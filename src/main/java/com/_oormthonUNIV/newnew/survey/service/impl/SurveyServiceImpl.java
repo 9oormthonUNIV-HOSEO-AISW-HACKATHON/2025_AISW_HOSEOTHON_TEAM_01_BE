@@ -10,6 +10,7 @@ import com._oormthonUNIV.newnew.survey.factory.SurveyFactory;
 import com._oormthonUNIV.newnew.survey.repository.SurveyAnswerRepository;
 import com._oormthonUNIV.newnew.survey.service.SurveyService;
 import com._oormthonUNIV.newnew.user.entity.Users;
+import com._oormthonUNIV.newnew.user.entity.enums.UserGeneration;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -37,5 +38,10 @@ public class SurveyServiceImpl implements SurveyService {
         queue.offer(task);
         surveyAnswerRepository.saveAll(answerList);
         // -> 여기에 세대별 로직 만들어야함
+    }
+
+    @Override
+    public List<SurveyAnswer> getByNewsIdAndGeneration(Long newsId, UserGeneration generation) {
+        return surveyAnswerRepository.findByNewsIdAndGeneration(newsId, generation);
     }
 }

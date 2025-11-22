@@ -1,13 +1,20 @@
 package com._oormthonUNIV.newnew.ai.worker;
 
+import com._oormthonUNIV.newnew.ai.dto.ai.AllGenerationAspectDTO;
+import com._oormthonUNIV.newnew.ai.dto.ai.GenerationAspectDTO;
 import com._oormthonUNIV.newnew.ai.entity.AiGenerationSurveyStatistics;
+import com._oormthonUNIV.newnew.ai.entity.AiNewsReport;
+import com._oormthonUNIV.newnew.ai.factory.AiFactory;
 import com._oormthonUNIV.newnew.ai.service.AiGenerationSurveyStatisticsService;
+import com._oormthonUNIV.newnew.ai.service.AiNewsReportService;
 import com._oormthonUNIV.newnew.global.messageQueue.task.SurveyStatisticsTask;
 import com._oormthonUNIV.newnew.global.properties.OpenApiProperties;
 import com._oormthonUNIV.newnew.news.entity.News;
 import com._oormthonUNIV.newnew.news.service.NewsService;
 import com._oormthonUNIV.newnew.survey.entity.SurveyAnswer;
 import com._oormthonUNIV.newnew.survey.service.SurveyService;
+import com._oormthonUNIV.newnew.user.entity.enums.UserGeneration;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.openai.client.OpenAIClient;
 import com.openai.client.okhttp.OpenAIOkHttpClient;
 import com.openai.models.ChatModel;
@@ -30,21 +37,27 @@ public class ApiWorker {
     private final OpenApiProperties openApiProperties;
     private final NewsService newsService;
     private final AiGenerationSurveyStatisticsService aiGenerationSurveyStatisticsService;
+    private final AiNewsReportService aiNewsReportService;
     private final PromptProvider promptProvider;
     private final SurveyService surveyService;
+    private final ObjectMapper mapper;
 
     public ApiWorker(
             BlockingQueue<SurveyStatisticsTask> queue,
             OpenApiProperties properties,
             NewsService newsService,
-            AiGenerationSurveyStatisticsService aiGenerationSurveyStatisticsService, SurveyService surveyService
+            AiGenerationSurveyStatisticsService aiGenerationSurveyStatisticsService,
+            AiNewsReportService aiNewsReportService,
+            SurveyService surveyService
     ) {
         this.queue = queue;
         this.openApiProperties = properties;
         this.newsService = newsService;
         this.aiGenerationSurveyStatisticsService = aiGenerationSurveyStatisticsService;
+        this.aiNewsReportService = aiNewsReportService;
         this.surveyService = surveyService;
         this.promptProvider = new PromptProvider();
+        this.mapper = new ObjectMapper();
         if (openApiProperties.getOPENAI_API_KEY() != null
                 && !openApiProperties.getOPENAI_API_KEY().isBlank()
         ) {
@@ -74,31 +87,45 @@ public class ApiWorker {
             try {
                 task = queue.take();
                 News news = newsService.getById(task.getNewsId());
+                AiNewsReport newsReport =
+                        aiNewsReportService.findByNewsId(news.getId())
+                                .orElse(
+                                        aiNewsReportService.save(AiNewsReport.builder()
+                                                .news(news)
+                                                .aspectReason(null)
+                                                .commonAspect(null)
+                                                .build())
+                                );
+
                 List<AiGenerationSurveyStatistics> statisticsList =
-                        aiGenerationSurveyStatisticsService.getByNewsId(news.getId());
+                        aiGenerationSurveyStatisticsService.getByAiNewsReportId(news.getId());
 
                 List<SurveyAnswer> newsGenerationSurveyList =
                         surveyService.getByNewsIdAndGeneration(news.getId(), task.getGeneration());
 
-                String response = chat(promptProvider.staticGenerationAddData(
+
+                // gpt응답 내역 처리 로직
+                String response = chat(promptProvider.statisticGenerationAddData(
                         newsGenerationSurveyList, task.getGeneration(), news
                 ));
 
-                // 리스트가 1개일때 같은 세대 또는 list가 0이면 그냥 저장 공통 통계 x
-                // 다른 세대이면 공통통계 ㄱ
-                if(statisticsList.isEmpty() ||
-                        (statisticsList.size() == 1 &&
-                        statisticsList.getFirst().getGeneration() == task.getGeneration())
-                ) {
+                GenerationAspectDTO dto = mapper.readValue(response, GenerationAspectDTO.class);// 문자열 → Enum 변환
+                UserGeneration generationEnum = getGeneration(dto.getGeneration());
+                AiGenerationSurveyStatistics aiGenerationSurveyStatistics
+                        = AiFactory.toAiGenerationSurveyStatistics(newsReport, generationEnum, dto);
+                aiGenerationSurveyStatisticsService.save(aiGenerationSurveyStatistics);
 
-                    //그냥 저장
-                }else {
-                   //공통 통계도 같이
+                // 공통 통계도 같이 처리
+                if (!(statisticsList.isEmpty() ||
+                        (statisticsList.size() == 1 && statisticsList.getFirst().getGeneration() == task.getGeneration()))) {
+                    // 공통 통계 처리
+                    String secResponse = chat(
+                            promptProvider.statisticAllGenerationAddData(news,statisticsList)
+                    );
+                    AllGenerationAspectDTO dto2 = mapper.readValue(secResponse, AllGenerationAspectDTO.class);// 문자열 → Enum 변환
+                    newsReport.update(dto2);
+                    aiNewsReportService.save(newsReport);
                 }
-
-
-                // ... 처리 로직
-
             } catch (InterruptedException ie) {
                 Thread.currentThread().interrupt(); // 반드시 필요
                 return; // 또는 break — 스레드를 종료
@@ -138,6 +165,14 @@ public class ApiWorker {
         String first = String.valueOf(comp.choices().getFirst().message().content());
         return first == null ? "" : first.strip();
 
+    }
+
+    private UserGeneration getGeneration(String generation) {
+        try {
+            return UserGeneration.valueOf(generation);
+        } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Unknown generation: " +generation, e);
+        }
     }
 
 }
