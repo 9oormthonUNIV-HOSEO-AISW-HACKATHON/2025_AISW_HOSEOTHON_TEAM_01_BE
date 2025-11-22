@@ -41,7 +41,7 @@ public class SurveyServiceImpl implements SurveyService {
     }
 
     @Override
-    public List<SurveyAnswer> getByNewsIdAndGeneration(Long newsId, UserGeneration generation) {
-        return surveyAnswerRepository.findByNewsIdAndGeneration(newsId, generation);
+    public List<SurveyAnswer> getByNewsIdAndGeneration(String newsId, UserGeneration generation) {
+        return surveyAnswerRepository.findByNews_TitleAndGeneration(newsId, generation);
     }
 }
