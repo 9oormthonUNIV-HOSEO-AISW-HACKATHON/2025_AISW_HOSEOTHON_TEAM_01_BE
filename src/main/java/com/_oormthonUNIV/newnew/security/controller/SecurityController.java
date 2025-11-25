@@ -9,6 +9,7 @@ import com._oormthonUNIV.newnew.security.facade.SecurityFacade;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -33,6 +34,7 @@ public class SecurityController {
     @PostMapping("/auth/logout")
     @ApiResponse(responseCode = "200", description = "로그아웃 성공")
     @Operation(summary = "로그아웃", description = "Authorization 헤더의 액세스 토큰을 블랙리스트에 추가하고 리프레시 토큰도 무효화")
+    @SecurityRequirement(name = "bearerAuth")
     public ResponseEntity<Void> logout(
             @RequestHeader(value = "Authorization") String authHeader,
             @AuthenticationPrincipal UserDetailImpl userDetail

@@ -19,6 +19,8 @@ import com._oormthonUNIV.newnew.survey.service.SurveyService;
 import com._oormthonUNIV.newnew.user.entity.Users;
 import com._oormthonUNIV.newnew.user.entity.enums.UserGeneration;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -44,7 +46,7 @@ public class SurveyServiceImpl implements SurveyService {
         News news = newsService.getById(request.getNewsId());
         List<SurveyAnswer> answerList =
                 surveyAnswerRepository.findByNewsIdAndUserId(news.getId(), user.getId());
-        if(!answerList.isEmpty()){
+        if (!answerList.isEmpty()) {
             throw new SurveyAnswerException(SurveyAnswerErrorCode.SURVEY_ANSWER_DUPLICATED);
         }
         answerList = SurveyFactory.toSurveyAnswers(news, request, user);
@@ -62,12 +64,12 @@ public class SurveyServiceImpl implements SurveyService {
     public NewsReportResponse getNewsReport(Long newsId, Users user) {
         List<SurveyAnswer> answerList =
                 surveyAnswerRepository.findByNewsIdAndUserId(newsId, user.getId());
-        if(answerList.isEmpty()){
+        if (answerList.isEmpty()) {
             throw new SurveyAnswerException(SurveyAnswerErrorCode.SURVEY_BAD_ACCESS);
         }
 
         AiNewsReport report = reportService.findByNewsId(newsId)
-                .orElseThrow( () -> new SurveyAnswerException(SurveyAnswerErrorCode.AI_REPORT_NOT_FOUND) );
+                .orElseThrow(() -> new SurveyAnswerException(SurveyAnswerErrorCode.AI_REPORT_NOT_FOUND));
         List<AiGenerationSurveyStatistics> statisticsList =
                 surveyStatisticsService.getByAiNewsReportId(report.getId());
 
@@ -78,11 +80,20 @@ public class SurveyServiceImpl implements SurveyService {
     public boolean isExistSurvey(Long newsId, Users user) {
         List<SurveyAnswer> answerList =
                 surveyAnswerRepository.findByNewsIdAndUserId(newsId, user.getId());
-        if(answerList.isEmpty()){
+        if (!answerList.isEmpty()) {
             return true;
-        }else {
+        } else {
             return false;
         }
     }
+
+    @Override
+    public List<News> getSurveyedNews(Long userId, Integer page, Integer size) {
+        int pageIndex = Math.max(0, page - 1);
+        Pageable pageable = Pageable.ofSize(size).withPage(pageIndex);
+        Page<News> newsPage = surveyAnswerRepository.findDistinctNewsByUserId(userId, pageable);
+        return newsPage.getContent();
+    }
+
 
 }

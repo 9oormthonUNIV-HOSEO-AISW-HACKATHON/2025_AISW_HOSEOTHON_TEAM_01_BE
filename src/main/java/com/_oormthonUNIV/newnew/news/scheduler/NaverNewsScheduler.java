@@ -2,7 +2,7 @@ package com._oormthonUNIV.newnew.news.scheduler;
 
 import com._oormthonUNIV.newnew.news.entity.News;
 import com._oormthonUNIV.newnew.news.entity.NewsCategory;
-import com._oormthonUNIV.newnew.news.repository.NewsCrawlerRepository;
+import com._oormthonUNIV.newnew.news.repository.NewsRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jsoup.Jsoup;
@@ -24,7 +24,7 @@ import java.util.Set;
 public class NaverNewsScheduler {
 
     private final NaverNewsCrawler naverNewsCrawler;
-    private final NewsCrawlerRepository newsCrawlerRepository;
+    private final NewsRepository newsRepository;
 
     private static final String POLITICS_URL = "https://news.naver.com/section/100"; // 정치
     private static final String ECONOMY_URL = "https://news.naver.com/section/101"; // 경제
@@ -88,7 +88,7 @@ public class NaverNewsScheduler {
             }
 
             if (!toSave.isEmpty()) {
-                newsCrawlerRepository.saveAll(toSave);
+                newsRepository.saveAll(toSave);
                 log.info("저장 완료: {}건", toSave.size());
             } else {
                 log.info("저장할 뉴스 없음");

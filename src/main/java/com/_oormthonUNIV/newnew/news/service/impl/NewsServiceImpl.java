@@ -1,12 +1,15 @@
 package com._oormthonUNIV.newnew.news.service.impl;
 
-import com._oormthonUNIV.newnew.ai.repository.AiNewsReportRepository;
-import com._oormthonUNIV.newnew.news.DTO.response.NewsListResponseDto;
 import com._oormthonUNIV.newnew.news.entity.News;
-import com._oormthonUNIV.newnew.news.repository.NewsCrawlerRepository;
+import com._oormthonUNIV.newnew.news.exception.NewsErrorCode;
+import com._oormthonUNIV.newnew.news.exception.NewsException;
+import com._oormthonUNIV.newnew.news.repository.NewsRepository;
 import com._oormthonUNIV.newnew.news.service.NewsService;
 import com._oormthonUNIV.newnew.user.entity.Users;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -17,46 +20,40 @@ import java.util.List;
 
 public class NewsServiceImpl implements NewsService {
 
-    private final NewsCrawlerRepository newsCrawlerRepository;
-    private final AiNewsReportRepository aiNewsReportRepository;
+    private final NewsRepository newsRepository;
 
     @Override
     public News getById(Long newsId) {
-        return newsCrawlerRepository.findById(newsId)
-                .orElseThrow( () -> new IllegalArgumentException("Newsasdasd"));
+        return newsRepository.findById(newsId)
+                .orElseThrow(() -> new NewsException(NewsErrorCode.NEWS_NOT_FOUND));
     }
 
     @Override
-    public List<News> getUserSurveiedNews(Users user) {
-        // TODO: 유저가 설문한 뉴스만 조회하고 싶으면 여기에 구현
-        // 지금은 일단 전체 목록 반환 혹은 비워두고 나중에 구현
-        return List.of();
-    }
-
-    @Override
-    public NewsListResponseDto getNewsList() {
-        List<News> news = newsCrawlerRepository.findAll();
-        return NewsListResponseDto.of(news);
-    }
-
-    @Override
-    public boolean isReportBlur(Long userId) {
-
-        return false;   // false면 블러 해제 (reportBlur = false)
+    public List<News> getPageableNews(Integer page, Integer size, Long nextNewsId) {
+        int safeSize = (size == null || size <= 0) ? 20 : size;
+        Sort sort = Sort.by(Sort.Direction.DESC, "id");
+        if (nextNewsId != null) {
+            Pageable cursorPage = PageRequest.of(0, safeSize, sort);
+            return newsRepository.findAllByIdLessThanOrderByIdDesc(nextNewsId, cursorPage);
+        }
+        int safePage = (page == null || page <= 0) ? 1 : page;
+        Pageable pageable = PageRequest.of(safePage - 1, safeSize, sort);
+        return newsRepository.findAll(pageable).getContent();
     }
 
     @Transactional
     public News getNewsDetail(Long newsId) {
-        // 조회수 먼저 증가
-        newsCrawlerRepository.increaseViewCount(newsId);
+        // 존재 여부 먼저 확인 (예외 메시지는 글로벌 핸들러 포맷으로 처리)
+        News news = newsRepository.findById(newsId)
+                .orElseThrow(() -> new NewsException(NewsErrorCode.NEWS_NOT_FOUND));
 
-        // 그리고 엔티티 조회
-        return newsCrawlerRepository.findById(newsId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 뉴스입니다. id=" + newsId));
+        // 조회수 증가 후 엔티티 반환
+        newsRepository.increaseViewCount(newsId);
+        return news;
     }
 
     @Override
     public List<News> getRanking() {
-        return newsCrawlerRepository.findTop2ByOrderByViewCountDesc();
+        return newsRepository.findTop2ByOrderByViewCountDesc();
     }
 }
