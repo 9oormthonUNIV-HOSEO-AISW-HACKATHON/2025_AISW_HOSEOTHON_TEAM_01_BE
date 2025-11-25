@@ -27,7 +27,7 @@ public class NewsController {
 
     private final NewsFacade newsFacade;
 
-    @GetMapping("/News")
+    @GetMapping("/news")
     @Operation(summary = "뉴스 목록 조회", description = "페이지네이션 또는 커서 기반(nextNewsId)으로 뉴스 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공적으로 뉴스 목록을 반환")
@@ -41,7 +41,7 @@ public class NewsController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/News/{newsId}") // 상세페이지
+    @GetMapping("/news/{newsId}") // 상세페이지
     @Operation(summary = "뉴스 상세 조회", description = "뉴스 상세 정보를 조회합니다. 인증 사용자는 설문 여부에 따라 블러 처리 여부가 반영됩니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공적으로 상세 정보를 반환"),
@@ -58,7 +58,7 @@ public class NewsController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/News/viewCount")
+    @GetMapping("/news/view-count")
     @Operation(summary = "인기 뉴스 Top2", description = "조회수 기준 상위 2개의 뉴스를 반환합니다.")
     @ApiResponse(responseCode = "200", description = "성공적으로 인기 뉴스를 반환")
     public ResponseEntity<NewsListResponse> getRankingNews() {
@@ -67,7 +67,7 @@ public class NewsController {
         return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/News/survey")
+    @GetMapping("/news/survey")
     @Operation(summary = "사용자 설문 참여 뉴스 목록", description = "사용자가 설문에 참여한 뉴스 목록을 조회합니다.")
     @ApiResponses(value = {
             @ApiResponse(responseCode = "200", description = "성공적으로 목록을 반환")
